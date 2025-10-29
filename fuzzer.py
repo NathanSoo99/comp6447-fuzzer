@@ -1,7 +1,16 @@
 from pwn import *
 
-p = process("./binaries/challenge1")
+target_process = process("./binaries/csv1")
 
-#gdb.attach(p)
+sample_input_file = open("./example_inputs/csv1.txt", "rb")
+output_file = open("./fuzzer_output/csv1.txt", "w")
 
-p.interactive()
+sample_input = sample_input_file.read()
+
+for i in range(0, 10000):
+    target_process.sendline(b"header,must,stay,intact")
+
+target_process.interactive()
+
+sample_input_file.close()
+output_file.close()
