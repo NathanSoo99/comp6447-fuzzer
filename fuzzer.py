@@ -14,3 +14,11 @@ target_process.interactive()
 
 sample_input_file.close()
 output_file.close()
+
+# i wonder if run_fuzzer handles running all the different files for us 
+
+
+# get every binary in the /binaries dir 
+    # for each binary 
+    # run all inputs against it 
+    # ensure we check well for segfaults and etc. otherwise we lose 
