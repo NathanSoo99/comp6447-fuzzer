@@ -23,7 +23,7 @@ def input_nothing(temp_input_file, example_input, binary_name):
     temp_input_file.truncate()
 
     print("Test - input nothing")
-    result = subprocess.run(["./binaries/csv1"], stdin=temp_input_file)
+    result = subprocess.run([f"./binaries/{binary_name}"], stdin=temp_input_file)
 
     if result.returncode != 0:
         print(f"Program crash triggered with no input")
@@ -46,8 +46,9 @@ def duplicate_input(temp_input_file, example_input, binary_name):
 
     temp_input_file.write(test_input)
 
-    result = subprocess.run(["./binaries/csv1"], stdin=temp_input_file)
-    write_output(binary_name, test_input)
+    temp_input_file.seek(0)
+
+    result = subprocess.run([f"./binaries/{binary_name}"], stdin=temp_input_file)
 
     if result.returncode != 0:
         print(f"Program crash triggered with input duplicated 1000000")
@@ -57,14 +58,53 @@ def duplicate_input(temp_input_file, example_input, binary_name):
     print("Program exited normally with input duplicated 1000000")
     return False
 
+def long_lines_append_end(temp_input_file, example_input, binary_name):
+    temp_input_file.seek(0)
+    temp_input_file.truncate()
+
+    print("Test - many long lines made by appending character to end")
+
+    i = 0
+    while i < len(example_input) and example_input[i] != 10:
+        i += 1
+
+    example_line = example_input[0:i]
+
+    temp_input_file.write(example_line)
+    temp_input_file.write(b"\n")
+
+    example_line += example_line * 100 + b"\n"
+
+    i = 0
+    while i < 1000:
+        temp_input_file.write(example_line)
+        i += 1
+
+    temp_input_file.seek(0)
+
+    result = subprocess.run([f"./binaries/{binary_name}"], stdin=temp_input_file)
+    
+    if result.returncode != 0:
+        print(f"Program crash triggered with 1000 lines of minimal 1000 characters")
+        write_output(binary_name, example_line)
+        return True
+    
+    print("Program exited normally with 1000 lines of minimal 1000 characters")
+
+    return False
+
 # single byte flip
 def single_byte_flip(temp_input_file, example_input, binary_name):
     temp_input_file.seek(0)
     temp_input_file.truncate()
 
+    test_input = example_input.copy()
 
-
-fuzz_tests = [input_nothing, duplicate_input]
+fuzz_tests = [
+    input_nothing,
+    duplicate_input,
+    long_lines_append_end
+]
 
 def fuzz_binary(binary_name):
     # open files
@@ -79,11 +119,13 @@ def fuzz_binary(binary_name):
     example_input = example_input_file.read()
 
     print(f"Fuzzing binary - {binary_name}")
+    print("______________________________________________________________________________")
 
     for test in fuzz_tests:
         if test(temp_input_file, example_input, binary_name) is True:
             break
 
+    print()
     # close files
     example_input_file.close()
     temp_input_file.close()
