@@ -9,8 +9,16 @@ FUZZER_OUTPUT_DIR_PATH = "./fuzzer_output"
 is_checkin = True
 checkin_binaries = ["csv1", "json1"]
 
+def write_output(binary_name, output):
+    output_file = open(f"{FUZZER_OUTPUT_DIR_PATH}/{binary_name}.txt", "w")
+    output_file.seek(0)
+    output_file.write(output.decode("utf-8"))
+    output_file.truncate()
+    output_file.close()
+
+
 # input empty file
-def input_nothing(temp_input_file):
+def input_nothing(temp_input_file, example_input, binary_name):
     temp_input_file.seek(0)
     temp_input_file.truncate()
 
@@ -19,35 +27,65 @@ def input_nothing(temp_input_file):
 
     if result.returncode != 0:
         print(f"Program crash triggered with no input")
-        output_file = open(f"{FUZZER_OUTPUT_DIR_PATH}/{binary}.txt", "w")
-        output_file.seek(0)
-        output_file.truncate()
-        output_file.close()
+        write_output(binary_name, "")
         return True
 
     print("Program exited normally")
     return False
 
-fuzz_tests = [input_nothing]
+# input duplicated example input
+def duplicate_input(temp_input_file, example_input, binary_name):
+    temp_input_file.seek(0)
+    temp_input_file.truncate()
+
+    test_input = b""
+    print("Test - duplicate example input")
+
+    for i in range(0, 10000):
+        test_input += example_input
+
+    temp_input_file.write(test_input)
+
+    result = subprocess.run(["./binaries/csv1"], stdin=temp_input_file)
+    write_output(binary_name, test_input)
+
+    if result.returncode != 0:
+        print(f"Program crash triggered with input duplicated 1000000")
+        write_output(binary_name, test_input)
+        return True
+
+    print("Program exited normally with input duplicated 1000000")
+    return False
+
+# single byte flip
+def single_byte_flip(temp_input_file, example_input, binary_name):
+    temp_input_file.seek(0)
+    temp_input_file.truncate()
+
+
+
+fuzz_tests = [input_nothing, duplicate_input]
 
 def fuzz_binary(binary_name):
     # open files
-    sample_input_file = None
+    example_input_file = None
     try:
-        sample_input_file = open(f"{EXAMPLE_INPUTS_DIR_PATH}/{binary}.txt", "r")
+        example_input_file = open(f"{EXAMPLE_INPUTS_DIR_PATH}/{binary}.txt", "rb")
     except FileNotFoundError:
         print(f"example input file not found for binary - {binary_name}")
         return
-    temp_input_file = open(f"{TEMP_INPUTS_DIR_PATH}/{binary}.txt", "r+")
+    temp_input_file = open(f"{TEMP_INPUTS_DIR_PATH}/{binary}.txt", "r+b")
+
+    example_input = example_input_file.read()
 
     print(f"Fuzzing binary - {binary_name}")
 
     for test in fuzz_tests:
-        if test(temp_input_file) is True:
+        if test(temp_input_file, example_input, binary_name) is True:
             break
 
     # close files
-    sample_input_file.close()
+    example_input_file.close()
     temp_input_file.close()
     return
 
