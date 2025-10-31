@@ -114,7 +114,7 @@ def fuzz_binary(binary_name):
     except FileNotFoundError:
         print(f"example input file not found for binary - {binary_name}")
         return
-    temp_input_file = open(f"{TEMP_INPUTS_DIR_PATH}/{binary}.txt", "r+b")
+    temp_input_file = open(f"{TEMP_INPUTS_DIR_PATH}/{binary}.txt", "w+b")
 
     example_input = example_input_file.read()
 
