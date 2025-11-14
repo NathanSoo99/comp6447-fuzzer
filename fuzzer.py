@@ -1,25 +1,53 @@
 import os
 
-from fuzzes.flips import single_byte_flip_char, single_byte_flip_csv, single_byte_flip_json, single_byte_flip_xml
+from fuzzes.flips import (
+    single_byte_flip_char,
+    single_byte_flip_csv,
+    single_byte_flip_json,
+    single_byte_flip_xml,
+)
 from fuzzes.flips import single_byte_flip_null, single_byte_flip_ff, single_byte_remove
+
+from fuzzes.inserts import delimiter_insert_at_index
+
 from fuzzes.basics import input_nothing, duplicate_input, long_lines_append_end
-from fuzzes.files import BINARIES_DIR_PATH, EXAMPLE_INPUTS_DIR_PATH, TEMP_INPUTS_DIR_PATH, FUZZER_OUTPUT_DIR_PATH
+from fuzzes.files import (
+    BINARIES_DIR_PATH,
+    EXAMPLE_INPUTS_DIR_PATH,
+    TEMP_INPUTS_DIR_PATH,
+    FUZZER_OUTPUT_DIR_PATH,
+)
 
 is_checkin = True
-checkin_binaries = ["csv1", "json1"]
+checkin_binaries = [
+    "challenge1",
+    "csv1",
+    "csv2",
+    "jpg1",
+    "json2",
+    "plaintext1",
+    "plaintext2",
+    "plaintext3",
+    "xml1",
+    "xml2",
+    "xml3",
+    "json1",
+]
 
 fuzz_tests = [
-    #input_nothing,
-    #duplicate_input,
-    #long_lines_append_end,
-    #single_byte_flip_char,
-    #single_byte_flip_null,
-    #single_byte_flip_ff,
+    input_nothing,
+    duplicate_input,
+    long_lines_append_end,
+    single_byte_flip_char,
+    single_byte_flip_null,
+    single_byte_flip_ff,
     single_byte_remove,
-    #single_byte_flip_csv,
-    #single_byte_flip_json,
-    #single_byte_flip_xml,
+    single_byte_flip_csv,
+    single_byte_flip_json,
+    single_byte_flip_xml,
+    delimiter_insert_at_index,
 ]
+
 
 def fuzz_binary(binary_name):
     # open files
@@ -34,7 +62,9 @@ def fuzz_binary(binary_name):
     example_input = example_input_file.read()
 
     print(f"Fuzzing binary - {binary_name}")
-    print("______________________________________________________________________________")
+    print(
+        "______________________________________________________________________________"
+    )
 
     for test in fuzz_tests:
         if test(temp_input_file, example_input, binary_name) is True:
@@ -45,6 +75,7 @@ def fuzz_binary(binary_name):
     example_input_file.close()
     temp_input_file.close()
     return
+
 
 if __name__ == "__main__":
     # directory checks and setup
@@ -67,10 +98,10 @@ if __name__ == "__main__":
     for binary in binaries:
         fuzz_binary(binary)
 
-# i wonder if run_fuzzer handles running all the different files for us 
+# i wonder if run_fuzzer handles running all the different files for us
 
 
-# get every binary in the /binaries dir 
-    # for each binary 
-    # run all inputs against it 
-    # ensure we check well for segfaults and etc. otherwise we lose
+# get every binary in the /binaries dir
+# for each binary
+# run all inputs against it
+# ensure we check well for segfaults and etc. otherwise we lose
