@@ -14,6 +14,15 @@ Basic buffer overflows - as a result of inputting large sizes of input to overfl
 
 # Notes for improvement
 In future weeks we will implement a harness
+Detecting the type of crash:
+  Detecting Code Coverage
+  Avoiding overheads
+      Not creating files
+  In memory resetting (Not calling execve)
+  Useful logging / statistics collection and display
+  Detecting Hangs / Infinite loops
+  Detecting infinite loop (code coverage) vs slow running program (timeout approach)
+
 ## Future mutations include
 - Bit flipping on random bits of input 
 - field delimiters (using . /  >< etc) to stuff up a program’s parsing 
