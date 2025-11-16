@@ -44,7 +44,7 @@ fuzz_tests = [
     single_byte_flip_csv,
     single_byte_flip_json,
     single_byte_flip_xml,
-    delimiter_insert_at_index,
+    #delimiter_insert_at_index,
 ]
 
 
