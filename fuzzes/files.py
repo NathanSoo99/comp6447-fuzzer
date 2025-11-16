@@ -1,6 +1,5 @@
 BINARIES_DIR_PATH = "./binaries"
 EXAMPLE_INPUTS_DIR_PATH = "./example_inputs"
-TEMP_INPUTS_DIR_PATH = "./temp_inputs"
 FUZZER_OUTPUT_DIR_PATH = "./fuzzer_output"
 
 def write_output(binary_name, output):

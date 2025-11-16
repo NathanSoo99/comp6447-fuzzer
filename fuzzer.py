@@ -3,19 +3,19 @@ import os
 from fuzzes.flips import single_byte_flip_char, single_byte_flip_csv, single_byte_flip_json, single_byte_flip_xml
 from fuzzes.flips import single_byte_flip_null, single_byte_flip_ff, single_byte_remove
 from fuzzes.basics import input_nothing, duplicate_input, long_lines_append_end
-from fuzzes.files import BINARIES_DIR_PATH, EXAMPLE_INPUTS_DIR_PATH, TEMP_INPUTS_DIR_PATH, FUZZER_OUTPUT_DIR_PATH
+from fuzzes.files import BINARIES_DIR_PATH, EXAMPLE_INPUTS_DIR_PATH, FUZZER_OUTPUT_DIR_PATH
 
 is_checkin = True
 checkin_binaries = ["csv1", "json1"]
 
 fuzz_tests = [
-    #input_nothing,
+    input_nothing,
     #duplicate_input,
-    #long_lines_append_end,
+    long_lines_append_end,
     #single_byte_flip_char,
     #single_byte_flip_null,
     #single_byte_flip_ff,
-    single_byte_remove,
+    #single_byte_remove,
     #single_byte_flip_csv,
     #single_byte_flip_json,
     #single_byte_flip_xml,
@@ -29,7 +29,6 @@ def fuzz_binary(binary_name):
     except FileNotFoundError:
         print(f"example input file not found for binary - {binary_name}")
         return
-    temp_input_file = open(f"{TEMP_INPUTS_DIR_PATH}/{binary}.txt", "w+b")
 
     example_input = example_input_file.read()
 
@@ -37,13 +36,12 @@ def fuzz_binary(binary_name):
     print("______________________________________________________________________________")
 
     for test in fuzz_tests:
-        if test(temp_input_file, example_input, binary_name) is True:
+        if test(example_input, binary_name) is True:
             break
 
     print()
     # close files
     example_input_file.close()
-    temp_input_file.close()
     return
 
 if __name__ == "__main__":
@@ -55,9 +53,6 @@ if __name__ == "__main__":
     if not (os.path.exists(EXAMPLE_INPUTS_DIR_PATH)):
         print("example inputs  doesn't exist")
         exit()
-
-    if not (os.path.exists(TEMP_INPUTS_DIR_PATH)):
-        os.mkdir(TEMP_INPUTS_DIR_PATH)
 
     if not (os.path.exists(FUZZER_OUTPUT_DIR_PATH)):
         os.mkdir(FUZZER_OUTPUT_DIR_PATH)

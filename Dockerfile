@@ -6,6 +6,7 @@ WORKDIR /
 
 # Copy/Compile my fuzzer
 COPY fuzzer.py /
+COPY fuzzes /fuzzes
 
 # Install dependencies
 # RUN apt-get update && apt-get install -y gdb
