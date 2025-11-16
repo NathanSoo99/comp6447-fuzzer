@@ -24,6 +24,7 @@ Detecting the type of crash:
   Detecting infinite loop (code coverage) vs slow running program (timeout approach)
 
 ## Future mutations include
-- Bit flipping on random bits of input 
+- Byte flipping on random bits of input 
 - field delimiters (using . /  >< etc) to stuff up a program’s parsing 
-- q
+- Byte insert!!!
+    - Specifically trying to insert various delimiters at an index and seeing if a specific delimiter at a certain index triggers a crashs

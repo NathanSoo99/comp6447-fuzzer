@@ -2,6 +2,7 @@ import subprocess
 
 from fuzzes.files import write_output
 
+
 # input empty file
 def input_nothing(example_input, binary_name):
     print("Test - input nothing")
@@ -11,11 +12,12 @@ def input_nothing(example_input, binary_name):
 
     if process.returncode != 0:
         print(f"Program crash triggered with no input")
-        write_output(binary_name, "")
+        write_output(binary_name, b"")
         return True
 
     print("Program exited normally")
     return False
+
 
 # input duplicated example input
 def duplicate_input(example_input, binary_name):
@@ -23,7 +25,7 @@ def duplicate_input(example_input, binary_name):
     test_input = b""
     print("Test - duplicate example input")
 
-    for i in range(0, 10000):
+    for _ in range(0, 10000):
         test_input += example_input
 
     result = subprocess.Popen([f"./binaries/{binary_name}"], stdin=subprocess.PIPE)
@@ -66,7 +68,7 @@ def long_lines_append_end(example_input, binary_name):
         print(f"Program crash triggered with 1000 lines of minimal 1000 characters")
         write_output(binary_name, example_line)
         return True
-    
+
     print("Program exited normally with 1000 lines of minimal 1000 characters")
 
     return False
