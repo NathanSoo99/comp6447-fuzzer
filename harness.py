@@ -24,6 +24,7 @@ class Harness:
         self.timeStart = time.perf_counter() # records total time at endLogger
         # self.result =  
         self.inputUsed = inputName
+        # maybe add more things to be interested about 
 
     def getSummary(self, retCode):
         """get a summary of the run"""
