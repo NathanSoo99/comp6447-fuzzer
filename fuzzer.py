@@ -34,7 +34,7 @@ fuzz_tests = [
     #delimiter_insert_at_index,
 ]
 
-ignore_signals = [0, 1, -6]
+IGNORE_SIGNALS = [0, 1, -6]
 
 
 def fuzz_binary(binary_name, binary_count, time_limit):
@@ -61,24 +61,25 @@ def fuzz_binary(binary_name, binary_count, time_limit):
     crash_count = 0
     returncode_count = {}
     for test in fuzz_tests:
-        res = test(example_input, binary_name)
-        try:
-            returncode = int(res.get("returncode"))
-        except ValueError:
-            print(f"Program hang: {res.get('cause')}")
-            hang_count += 1
-            hang_input = res.get("input")
-            hang = True
-        else:
-            returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
-            sig = "normally" if returncode >= 0 else f"with signal {returncode} ({signal.Signals(-returncode).name})"
-            if returncode not in ignore_signals:
-                print(f"Program crashed {sig}: {res.get('cause')}")
-                write_output(binary_name, res.get("input"))
-                written = True
-                crash_count += 1
+        results = test(example_input, binary_name)
+        for res in results:
+            try:
+                returncode = int(res.get("returncode"))
+            except ValueError:
+                print(f"Program hang: {res.get('cause')}")
+                hang_count += 1
+                hang_input = res.get("input")
+                hang = True
             else:
-                print(f"Program exited {sig}: {res.get('cause')}")
+                returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
+                sig = "normally" if returncode >= 0 else f"with signal {returncode} ({signal.Signals(-returncode).name})"
+                if returncode not in IGNORE_SIGNALS:
+                    print(f"Program crashed {sig}: {res.get('cause')}")
+                    write_output(binary_name, res.get("input"))
+                    written = True
+                    crash_count += 1
+                #else:    # enable to allow non-significant program exit output
+                    #print(f"Program exited {sig}: {res.get('cause')}")
 
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
@@ -89,21 +90,21 @@ def fuzz_binary(binary_name, binary_count, time_limit):
 
     time_taken = time.time() - start
     print()
-    print("|--------------------------------|")
-    print("| Fuzz Summary                   |")
-    print("|--------------------------------|")
-    print("| Return Codes  | Count          |")
-    print("|--------------------------------|")
+    print("╭────────────────────────────────╮")
+    print("│ FUZZ SUMMARY                   │")
+    print("├───────────────┬────────────────┤")
+    print("│ Return Codes  │ Count          │")
+    print("├───────────────┼────────────────┤")
     for code in sorted(returncode_count):
         if (code < 0):
-            print(f"| {str(code) + ' (' + signal.Signals(-code).name + ')':<13} | {returncode_count[code]:<14} |")
+            print(f"│ {str(code) + ' (' + signal.Signals(-code).name + ')':<13} │ {returncode_count[code]:<14} │")
         else:
-            print(f"| {code:<13} | {returncode_count[code]:<14} |")
-    print("|--------------------------------|")
-    print(f"| Time Taken: {time_taken:<18.10f} |")
-    print(f"| Hangs: {hang_count:<23} |")
-    print(f"| Crashes: {crash_count:<21} |")
-    print("|--------------------------------|")
+            print(f"│ {code:<13} │ {returncode_count[code]:<14} │")
+    print("├───────────────┴────────────────┤")
+    print(f"│ Time Taken: {time_taken:<18.10f} │")
+    print(f"│ Hangs: {hang_count:<23} │")
+    print(f"│ Crashes: {crash_count:<21} │")
+    print("╰────────────────────────────────╯")
     print(
         "______________________________________________________________________________"
     )
