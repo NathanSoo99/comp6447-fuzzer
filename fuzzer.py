@@ -51,29 +51,38 @@ def fuzz_binary(binary_name, binary_count, time_limit):
     )
 
     start = time.time()
+    hang_count = 0
+    crash_count = 0
+    returncode_count = {}
     for test in fuzz_tests:
         res = test(example_input, binary_name)
-        returncode = res.get("returncode")
-        if returncode != 0:
-            print(f"Program crashed: {res.get('cause')}")
-            write_output(binary_name, res.get("input"))
-            break
+        try:
+            returncode = res.get("returncode")
+            returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
+            if returncode != 0:
+                print(f"Program crashed: {res.get('cause')}")
+                write_output(binary_name, res.get("input"))
+        except ValueError:
+            print(f"Program hang: {res.get('cause')}")
+            hang_count += 1
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
             break
+
     time_taken = time.time() - start
     print()
-    print("|-----------------------------|")
-    print("|Fuzz Summary                 |")
-    print("|-----------------------------|")
-    print("| Return Codes  | Count       |")
-    print("|-----------------------------|")
-    print("| add stuff here              |")
-    print("|-----------------------------|")
-    print("| Time Taken:                 |")
-    print("| Hangs:                      |")
-    print("| Crashes:                    |")
-    print("|-----------------------------|")
+    print("|--------------------------------|")
+    print("| Fuzz Summary                   |")
+    print("|--------------------------------|")
+    print("| Return Codes  | Count          |")
+    print("|--------------------------------|")
+    for code in sorted(returncode_count):
+        print(f"| {code:<13} | {returncode_count[code]:<14} |")
+    print("|--------------------------------|")
+    print(f"| Time Taken: {time_taken:<18.10f} |")
+    print("| Hangs:                         |")
+    print("| Crashes:                       |")
+    print("|--------------------------------|")
     print(
         "______________________________________________________________________________"
     )
