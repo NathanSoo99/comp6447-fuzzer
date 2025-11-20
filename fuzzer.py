@@ -1,5 +1,6 @@
 import os
 import time
+import signal
 
 from fuzzes.flips import (
     single_byte_flip_char,
@@ -32,6 +33,8 @@ fuzz_tests = [
     single_byte_flip_xml,
     #delimiter_insert_at_index,
 ]
+
+ignore_signals = [0, 1, -6]
 
 
 def fuzz_binary(binary_name, binary_count, time_limit):
@@ -68,11 +71,14 @@ def fuzz_binary(binary_name, binary_count, time_limit):
             hang = True
         else:
             returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
-            if returncode != 0:
-                print(f"Program crashed: {res.get('cause')}")
+            sig = "normally" if returncode >= 0 else f"with signal {returncode} ({signal.Signals(-returncode).name})"
+            if returncode not in ignore_signals:
+                print(f"Program crashed {sig}: {res.get('cause')}")
                 write_output(binary_name, res.get("input"))
                 written = True
                 crash_count += 1
+            else:
+                print(f"Program exited {sig}: {res.get('cause')}")
 
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
@@ -89,7 +95,10 @@ def fuzz_binary(binary_name, binary_count, time_limit):
     print("| Return Codes  | Count          |")
     print("|--------------------------------|")
     for code in sorted(returncode_count):
-        print(f"| {code:<13} | {returncode_count[code]:<14} |")
+        if (code < 0):
+            print(f"| {str(code) + ' (' + signal.Signals(-code).name + ')':<13} | {returncode_count[code]:<14} |")
+        else:
+            print(f"| {code:<13} | {returncode_count[code]:<14} |")
     print("|--------------------------------|")
     print(f"| Time Taken: {time_taken:<18.10f} |")
     print(f"| Hangs: {hang_count:<23} |")
