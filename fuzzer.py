@@ -63,6 +63,21 @@ def fuzz_binary(binary_name, binary_count, time_limit):
             break
     time_taken = time.time() - start
     print()
+    print("|-----------------------------|")
+    print("|Fuzz Summary                 |")
+    print("|-----------------------------|")
+    print("| Return Codes  | Count       |")
+    print("|-----------------------------|")
+    print("| add stuff here              |")
+    print("|-----------------------------|")
+    print("| Time Taken:                 |")
+    print("| Hangs:                      |")
+    print("| Crashes:                    |")
+    print("|-----------------------------|")
+    print(
+        "______________________________________________________________________________"
+    )
+    print()
     # close files
     example_input_file.close()
     return time_taken
