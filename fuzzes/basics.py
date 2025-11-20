@@ -25,8 +25,7 @@ def duplicate_input(example_input, binary_name):
     test_input = b""
     print("Test - duplicate example input")
 
-    for _ in range(0, 10000):
-        test_input += example_input
+    test_input = example_input * 10000
 
     result = subprocess.Popen([f"./binaries/{binary_name}"], stdin=subprocess.PIPE)
     result.communicate(input=test_input)
