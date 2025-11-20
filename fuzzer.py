@@ -18,22 +18,6 @@ from fuzzes.files import (
     FUZZER_OUTPUT_DIR_PATH,
 )
 
-is_checkin = True
-checkin_binaries = [
-    "challenge1",
-    "csv1",
-    "csv2",
-    "jpg1",
-    "json2",
-    "plaintext1",
-    "plaintext2",
-    "plaintext3",
-    "xml1",
-    "xml2",
-    "xml3",
-    "json1",
-]
-
 fuzz_tests = [
     input_nothing,
     duplicate_input,
@@ -93,7 +77,7 @@ if __name__ == "__main__":
         os.mkdir(FUZZER_OUTPUT_DIR_PATH)
 
     # get binaries
-    binaries = checkin_binaries if is_checkin is True else os.listdir(BINARIES_DIR_PATH)
+    binaries = os.listdir(BINARIES_DIR_PATH)
     binary_count = len(binaries)
     time_limit = binary_count * 60
     for binary in binaries:
