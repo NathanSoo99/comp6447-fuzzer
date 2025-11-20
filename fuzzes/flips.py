@@ -71,7 +71,7 @@ def single_byte_remove(example_input, binary_name):
         except subprocess.TimeoutExpired:
             process.kill()
             process.communicate()
-            return {"returncode": "HANG", "cause": f"byte removed' at position {i}", "input": test_input}
+            return {"returncode": "HANG", "cause": f"byte removed at position {i}", "input": test_input}
         if process.returncode != 0:
             return {"returncode": process.returncode, "cause": f"byte removed' at position {i}", "input": test_input}
     return {"returncode": 0, "cause": "bytes removed at ranom indices", "input": 0}
@@ -95,7 +95,7 @@ def single_byte_flip_json(example_input, binary_name):
     for character in characters:
         result = byte_flip_loop(example_input, binary_name, character)
         if result.get("returncode") != 0:
-            return result
+            return {"returncode": result.get("returncode"), "cause": f"byte flipped to '{character}' at position {result.get('index')}", "input": result.get("input")}
 
     return {"returncode": 0, "cause": "normal exit", "input": 0}
 
@@ -107,6 +107,6 @@ def single_byte_flip_xml(example_input, binary_name):
     for character in characters:
         result = byte_flip_loop(example_input, binary_name, character)
         if result.get("returncode") != 0:
-            return result
+            return {"returncode": result.get("returncode"), "cause": f"byte flipped to '{character}' at position {result.get('index')}", "input": result.get("input")}
 
     return {"returncode": 0, "cause": "normal exit", "input": 0}
