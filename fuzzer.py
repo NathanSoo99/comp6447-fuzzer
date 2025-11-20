@@ -52,6 +52,9 @@ def fuzz_binary(binary_name, binary_count, time_limit):
 
     start = time.time()
     hang_count = 0
+    hang_input = b""
+    hang = False
+    written = False
     crash_count = 0
     returncode_count = {}
     for test in fuzz_tests:
@@ -61,16 +64,22 @@ def fuzz_binary(binary_name, binary_count, time_limit):
         except ValueError:
             print(f"Program hang: {res.get('cause')}")
             hang_count += 1
+            hang_input = res.get("input")
+            hang = True
         else:
             returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
             if returncode != 0:
                 print(f"Program crashed: {res.get('cause')}")
                 write_output(binary_name, res.get("input"))
+                written = True
                 crash_count += 1
 
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
             break
+
+    if not written:
+        write_output(binary_name, hang_input)
 
     time_taken = time.time() - start
     print()
@@ -113,7 +122,8 @@ if __name__ == "__main__":
     binary_count = len(binaries)
     time_limit = binary_count * 60
     for binary in binaries:
-        time_limit -= fuzz_binary(binary, binary_count, time_limit)
+        time_taken -= fuzz_binary(binary, binary_count, time_limit)
+        binaries.remove(binary)
         binary_count -= 1
     print(f"Time Remaining: {time_limit} seconds")
 
