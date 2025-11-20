@@ -62,6 +62,7 @@ def fuzz_binary(binary_name, binary_count, time_limit):
             if returncode != 0:
                 print(f"Program crashed: {res.get('cause')}")
                 write_output(binary_name, res.get("input"))
+                crash_count += 1
         except ValueError:
             print(f"Program hang: {res.get('cause')}")
             hang_count += 1
@@ -80,8 +81,8 @@ def fuzz_binary(binary_name, binary_count, time_limit):
         print(f"| {code:<13} | {returncode_count[code]:<14} |")
     print("|--------------------------------|")
     print(f"| Time Taken: {time_taken:<18.10f} |")
-    print("| Hangs:                         |")
-    print("| Crashes:                       |")
+    print(f"| Hangs: {hang_count:<23} |")
+    print(f"| Crashes: {crash_count:<21} |")
     print("|--------------------------------|")
     print(
         "______________________________________________________________________________"
