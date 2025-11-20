@@ -1,12 +1,16 @@
 # Functionality
-Currently our fuzzer uses subprocess to run the provided binaries, looping through them from the binaries folder and then feeding input (both the example input and our own mutated input). However for the sake of the midpoint check-in the fuzzer only runs csv1 and json1.
-Our fuzzer checks for return codes that are not 0 (assumption that these would be error codes due to the fuzzer causing abnormal behaviour of the binary) and then stops running the binary and prints the input that caused that error
+Our fuzzer runs the provided binaries as subprocesses, looping through the binaries directory and feeding input to the binaries (both the example input and our own mutated input).
+Our fuzzer detects a crash when it receives ambnormal return codes from a subprocess, considering -6 (aborts), 0 (exit success) and 1 (exits called by the program) to be normal and assuming other codes are due to the fuzzer causing abnormal behaviour of the binary. The last output which caused an error (or a hang if no error was found) is written to the fuzzer output directory.
 ## Mutation Strategies
 Current mutation strategies are:
 - Inputting nothing
 - Increasing the size of the input lines by appending ‘a’s onto the end of it
 - Inputting excessive amounts of lines at once
 - And feeding in many long input lines
+
+## Logging
+For each binary, our fuzzer prints the name of the binary, all checks run against that binary, and significant results or crashes for each check.
+At the end of all checks, a summary is provided with statistics on the return codes received, the total number of crashes and hangs caused, and the total time elapsed.
 
 ## What kinds of bugs your fuzzer can find
 Can find unhandled syntax errors such as not properly aligned CSV files by mutating the comma which separates the fields to another arbitrary symbol which cannot be parsed as valid CSV syntax
