@@ -35,11 +35,14 @@ def delimiter_insert_at_index(example_input, binary_name):
     for d in delimiters:
         for i in range(0, len(example_input)):
             test_input = example_input[:i] + d + example_input[i:]
-            result = subprocess.Popen(
-                [f"./binaries/{binary_name}"], stdin=subprocess.PIPE
+            process = subprocess.Popen([
+                f"./binaries/{binary_name}"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-            result.communicate(input=test_input)
-            result.wait()
+            process.communicate(input=test_input)
+            process.wait()
             if result.returncode != 0:
                 print(
                     f"Program crash triggered with: '{d.decode()}' inserted at index: {i}"

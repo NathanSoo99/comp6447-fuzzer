@@ -6,7 +6,12 @@ from fuzzes.files import write_output
 # input empty file
 def input_nothing(example_input, binary_name):
     print("Test - input nothing")
-    process = subprocess.Popen([f"./binaries/{binary_name}"], stdin=subprocess.PIPE)
+    process = subprocess.Popen([
+        f"./binaries/{binary_name}"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     process.communicate(input=b"")
     process.wait()
 
@@ -27,11 +32,16 @@ def duplicate_input(example_input, binary_name):
 
     test_input = example_input * 10000
 
-    result = subprocess.Popen([f"./binaries/{binary_name}"], stdin=subprocess.PIPE)
-    result.communicate(input=test_input)
-    result.wait()
+    process = subprocess.Popen([
+        f"./binaries/{binary_name}"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    process.communicate(input=test_input)
+    process.wait()
 
-    if result.returncode != 0:
+    if process.returncode != 0:
         print(f"Program crash triggered with input duplicated 10000")
         write_output(binary_name, test_input)
         return True
@@ -58,11 +68,16 @@ def long_lines_append_end(example_input, binary_name):
         input += example_line
         i += 1
 
-    process = subprocess.Popen([f"./binaries/{binary_name}"], stdin=subprocess.PIPE)
+    process = subprocess.Popen([
+        f"./binaries/{binary_name}"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     process.communicate(input=input)
     process.wait()
 
-    
+
     if process.returncode != 0:
         print(f"Program crash triggered with 1000 lines of minimal 1000 characters")
         write_output(binary_name, example_line)
