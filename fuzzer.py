@@ -57,15 +57,17 @@ def fuzz_binary(binary_name, binary_count, time_limit):
     for test in fuzz_tests:
         res = test(example_input, binary_name)
         try:
-            returncode = res.get("returncode")
+            returncode = int(res.get("returncode"))
+        except ValueError:
+            print(f"Program hang: {res.get('cause')}")
+            hang_count += 1
+        else:
             returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
             if returncode != 0:
                 print(f"Program crashed: {res.get('cause')}")
                 write_output(binary_name, res.get("input"))
                 crash_count += 1
-        except ValueError:
-            print(f"Program hang: {res.get('cause')}")
-            hang_count += 1
+
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
             break

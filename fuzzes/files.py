@@ -3,9 +3,9 @@ EXAMPLE_INPUTS_DIR_PATH = "./example_inputs"
 FUZZER_OUTPUT_DIR_PATH = "./fuzzer_output"
 
 def write_output(binary_name, output):
-    output_file = open(f"{FUZZER_OUTPUT_DIR_PATH}/bad_{binary_name}.txt", "w")
+    output_file = open(f"{FUZZER_OUTPUT_DIR_PATH}/bad_{binary_name}.txt", "wb")
     output_file.seek(0)
-    output_file.write(output.decode("utf-8"))
+    output_file.write(output)
     output_file.truncate()
     output_file.close()
 
