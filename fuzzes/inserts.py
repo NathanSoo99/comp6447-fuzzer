@@ -31,7 +31,7 @@ def delimiter_insert_at_index(example_input, binary_name):
     ]
 
     print("Test - insert delimiter at random index")
-    crashed = False
+
     for d in delimiters:
         for i in range(0, len(example_input)):
             test_input = example_input[:i] + d + example_input[i:]
@@ -43,13 +43,7 @@ def delimiter_insert_at_index(example_input, binary_name):
             )
             process.communicate(input=test_input)
             process.wait()
-            if result.returncode != 0:
-                print(
-                    f"Program crash triggered with: '{d.decode()}' inserted at index: {i}"
-                )
-                write_output(binary_name, test_input)
-                crashed = True
-    if not crashed:
-        print(f"Program exited normally with delimiters inserted at random indices")
+            if process.returncode != 0:
+                return {"returncode": process.returncode, "cause": f"'{d.decode()}' inserted at index: {i}", "input": test_input}
 
-    return crashed
+    return {"returncode": 0, "cause": "delimiters inserted at random indices", "input": 0}

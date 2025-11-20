@@ -16,6 +16,7 @@ from fuzzes.files import (
     BINARIES_DIR_PATH,
     EXAMPLE_INPUTS_DIR_PATH,
     FUZZER_OUTPUT_DIR_PATH,
+    write_output
 )
 
 fuzz_tests = [
@@ -51,7 +52,11 @@ def fuzz_binary(binary_name, binary_count, time_limit):
 
     start = time.time()
     for test in fuzz_tests:
-        if test(example_input, binary_name) is True:
+        res = test(example_input, binary_name)
+        returncode = res.get("returncode")
+        if returncode != 0:
+            print(f"Program crashed: {res.get('cause')}")
+            write_output(binary_name, res.get("input"))
             break
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")

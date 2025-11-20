@@ -14,43 +14,39 @@ def byte_flip_loop(example_input, binary_name, character):
         )
         process.communicate(input = test_input)
         if process.returncode != 0:
-            write_output(binary_name, test_input)
-            print(f"Program crash triggered with byte flipped to '{character.decode()}' at position {i}")
-            return process.returncode
-    return 0
+            return {"returncode": process.returncode, "index": i, "input": test_input}
+    return {"returncode": 0, "index": 0, "input": 0}
 
 # single byte flip
 def single_byte_flip_char(example_input, binary_name):
     print("Test - single byte letter flip")
 
     result = byte_flip_loop(example_input, binary_name, b"a")
-    if result != 0:
-        return True
+    if result.get("returncode") != 0:
+        return {"returncode": result.get("returncode"), "cause": f"byte flipped to 'a' at position {result.get('index')}", "input": result.get("input")}
 
-    print("Program exited normally with bytes flipped to 'a'")
-    return False
+    return {"returncode": 0, "cause": "Program exited normally with bytes flipped to 'a'", "input": 0}
+
 
 # single null byte flip
 def single_byte_flip_null(example_input, binary_name):
     print("Test - single null byte flip")
 
     result = byte_flip_loop(example_input, binary_name, b"\x00")
-    if result != 0:
-        return True
+    if result.get("returncode") != 0:
+        return {"returncode": result.get("returncode"), "cause": f"byte flipped to '\x00' at position {result.get('index')}", "input": result.get("input")}
 
-    print("Program exited normally with bytes flipped to 0x00")
-    return False
+    return {"returncode": 0, "cause": "Program exited normally with bytes flipped to 'a'", "input": 0}
 
 # single 0xff byte flip
 def single_byte_flip_ff(example_input, binary_name):
     print("Test - single 0xff byte flip")
 
     result = byte_flip_loop(example_input, binary_name, b"\xff")
-    if result != 0:
-        return True
+    if result.get("returncode") != 0:
+        return {"returncode": result.get("returncode"), "cause": f"byte flipped to '\xff' at position {result.get('index')}", "input": result.get("input")}
 
-    print("Program exited normally with bytes flipped to 0xff")
-    return False
+    return {"returncode": 0, "cause": "Program exited normally with bytes flipped to 'a'", "input": 0}
 
 # single byte remove
 def single_byte_remove(example_input, binary_name):
@@ -68,10 +64,8 @@ def single_byte_remove(example_input, binary_name):
         process.communicate(input=test_input)
         process.wait()
         if process.returncode != 0:
-            write_output(binary_name, test_input)
-            print(f"Program crash triggered with byte removed' at position {i}")
-            return True
-    return False
+            return {"returncode": process.returncode, "cause": f"byte removed' at position {i}", "input": test_input}
+    return {"returncode": 0, "cause": "bytes removed at ranom indices", "input": 0}
 
 
 # csv targeted byte flip
@@ -79,11 +73,10 @@ def single_byte_flip_csv(example_input, binary_name):
     print("Test - single byte flip to csv syntax")
 
     result = byte_flip_loop(example_input, binary_name, b",")
-    if result != 0:
-        return True
+    if result.get("returncode") != 0:
+        return {"returncode": result.get("returncode"), "cause": f"byte flipped to '\xff' at position {result.get('index')}", "input": result.get("input")}
 
-    print("Program exited normally with byte flipped to ','")
-    return False
+    return {"returncode": 0, "cause": "Program exited normally with bytes flipped to ','", "input": 0}
 
 # json targeted byte flip
 def single_byte_flip_json(example_input, binary_name):
@@ -92,11 +85,10 @@ def single_byte_flip_json(example_input, binary_name):
 
     for character in characters:
         result = byte_flip_loop(example_input, binary_name, character)
-        if result != 0:
-            return True
+        if result.get("returncode") != 0:
+            return result
 
-    print("Program exited normally with bytes flipped to '{', '}', '\"', '\\', ':', ','")
-    return False
+    return {"returncode": 0, "cause": "normal exit", "input": 0}
 
 # xml targeted byte flip
 def single_byte_flip_xml(example_input, binary_name):
@@ -105,8 +97,7 @@ def single_byte_flip_xml(example_input, binary_name):
 
     for character in characters:
         result = byte_flip_loop(example_input, binary_name, character)
-        if result != 0:
-            return True
+        if result.get("returncode") != 0:
+            return result
 
-    print("Program exited normally with bytes flipped to '<', '>', '\"', '\\', ''', '&'")
-    return False
+    return {"returncode": 0, "cause": "normal exit", "input": 0}

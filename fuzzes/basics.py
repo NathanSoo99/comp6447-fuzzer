@@ -15,13 +15,7 @@ def input_nothing(example_input, binary_name):
     process.communicate(input=b"")
     process.wait()
 
-    if process.returncode != 0:
-        print(f"Program crash triggered with no input")
-        write_output(binary_name, b"")
-        return True
-
-    print("Program exited normally")
-    return False
+    return {"returncode": process.returncode, "cause": "no input", "input": b""}
 
 
 # input duplicated example input
@@ -41,13 +35,7 @@ def duplicate_input(example_input, binary_name):
     process.communicate(input=test_input)
     process.wait()
 
-    if process.returncode != 0:
-        print(f"Program crash triggered with input duplicated 10000")
-        write_output(binary_name, test_input)
-        return True
-
-    print("Program exited normally with input duplicated 10000")
-    return False
+    return {"returncode": process.returncode, "cause": "duplicated input (10000x)", "input": test_input}
 
 def long_lines_append_end(example_input, binary_name):
 
@@ -59,13 +47,13 @@ def long_lines_append_end(example_input, binary_name):
 
     example_line = example_input[0:i]
 
-    input = example_line + b"\n"
+    test_input = example_line + b"\n"
 
     example_line += example_line * 100 + b"\n"
 
     i = 0
     while i < 1000:
-        input += example_line
+        test_input += example_line
         i += 1
 
     process = subprocess.Popen([
@@ -74,15 +62,7 @@ def long_lines_append_end(example_input, binary_name):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    process.communicate(input=input)
+    process.communicate(input=test_input)
     process.wait()
 
-
-    if process.returncode != 0:
-        print(f"Program crash triggered with 1000 lines of minimal 1000 characters")
-        write_output(binary_name, example_line)
-        return True
-
-    print("Program exited normally with 1000 lines of minimal 1000 characters")
-
-    return False
+    return {"returncode": process.returncode, "cause": "1000 lines of minimal 1000 characters", "input": test_input}
