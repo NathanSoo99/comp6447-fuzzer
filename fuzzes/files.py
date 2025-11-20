@@ -1,6 +1,7 @@
 BINARIES_DIR_PATH = "./binaries"
 EXAMPLE_INPUTS_DIR_PATH = "./example_inputs"
 FUZZER_OUTPUT_DIR_PATH = "./fuzzer_output"
+TIMEOUT=15
 
 def write_output(binary_name, output):
     output_file = open(f"{FUZZER_OUTPUT_DIR_PATH}/bad_{binary_name}.txt", "wb")

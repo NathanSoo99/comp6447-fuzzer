@@ -1,6 +1,6 @@
 import subprocess
 
-from fuzzes.files import write_output
+from fuzzes.files import write_output, TIMEOUT
 
 def byte_flip_loop(example_input, binary_name, character):
     for i in range(0, len(example_input)):
@@ -12,7 +12,12 @@ def byte_flip_loop(example_input, binary_name, character):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        process.communicate(input = test_input)
+        try:
+            process.communicate(input=test_input, timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+            return {"returncode": "HANG", "index": i, "input": test_input}
         if process.returncode != 0:
             return {"returncode": process.returncode, "index": i, "input": test_input}
     return {"returncode": 0, "index": 0, "input": 0}
@@ -61,8 +66,12 @@ def single_byte_remove(example_input, binary_name):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        process.communicate(input=test_input)
-        process.wait()
+        try:
+            process.communicate(input=test_input, timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+            return {"returncode": "HANG", "cause": f"byte removed' at position {i}", "input": test_input}
         if process.returncode != 0:
             return {"returncode": process.returncode, "cause": f"byte removed' at position {i}", "input": test_input}
     return {"returncode": 0, "cause": "bytes removed at ranom indices", "input": 0}

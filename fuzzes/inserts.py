@@ -1,6 +1,6 @@
 import subprocess
 
-from fuzzes.files import write_output, overwrite_file
+from fuzzes.files import write_output, overwrite_file, TIMEOUT
 
 
 def delimiter_insert_at_index(example_input, binary_name):
@@ -41,8 +41,12 @@ def delimiter_insert_at_index(example_input, binary_name):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            process.communicate(input=test_input)
-            process.wait()
+            try:
+                process.communicate(input=test_input, timeout=TIMEOUT)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.communicate()
+                return {"returncode": "HANG", "cause": f"'{d.decode()}' inserted at index: {i}", "input": test_input}
             if process.returncode != 0:
                 return {"returncode": process.returncode, "cause": f"'{d.decode()}' inserted at index: {i}", "input": test_input}
 
