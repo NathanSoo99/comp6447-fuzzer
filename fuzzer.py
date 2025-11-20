@@ -1,4 +1,5 @@
 import os
+import time
 
 from fuzzes.flips import (
     single_byte_flip_char,
@@ -48,7 +49,7 @@ fuzz_tests = [
 ]
 
 
-def fuzz_binary(binary_name):
+def fuzz_binary(binary_name, binary_count, time_limit):
     # open files
     example_input_file = None
     try:
@@ -64,14 +65,18 @@ def fuzz_binary(binary_name):
         "______________________________________________________________________________"
     )
 
+    start = time.time()
     for test in fuzz_tests:
         if test(example_input, binary_name) is True:
             break
-
+        if time.time() - start >= time_limit / binary_count:
+            print("Time limit reached.")
+            break
+    time_taken = time.time() - start
     print()
     # close files
     example_input_file.close()
-    return
+    return time_taken
 
 
 if __name__ == "__main__":
@@ -89,8 +94,12 @@ if __name__ == "__main__":
 
     # get binaries
     binaries = checkin_binaries if is_checkin is True else os.listdir(BINARIES_DIR_PATH)
+    binary_count = len(binaries)
+    time_limit = binary_count * 60
     for binary in binaries:
-        fuzz_binary(binary)
+        time_limit -= fuzz_binary(binary, binary_count, time_limit)
+        binary_count -= 1
+    print(f"Time Remaining: {time_limit} seconds")
 
 # i wonder if run_fuzzer handles running all the different files for us
 
