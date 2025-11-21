@@ -1,10 +1,11 @@
 import subprocess
-
+import time
 from fuzzes.files import write_output, TIMEOUT, IGNORE_SIGNALS
 
 
 def byte_flip_loop(example_input, binary_name, character):
     res = []
+    start = time.time()
     for i in range(0, len(example_input)):
         test_input = example_input[0:i] + character + example_input[i+1:len(example_input)]
 
@@ -14,6 +15,12 @@ def byte_flip_loop(example_input, binary_name, character):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
+
+        if time.time() - start > TIMEOUT:
+            process.kill()
+            process.communicate()
+            print("Timeout.")
+            return res
         try:
             process.communicate(input=test_input, timeout=TIMEOUT)
         except subprocess.TimeoutExpired:
@@ -50,6 +57,8 @@ def single_byte_flip_ff(example_input, binary_name):
 def single_byte_remove(example_input, binary_name):
     print("Test - single byte remove")
     res = []
+    start = time.time()
+
     for i in range(0, len(example_input)):
         test_input = example_input[0:i] + example_input[i+1:len(example_input)]
 
@@ -59,6 +68,11 @@ def single_byte_remove(example_input, binary_name):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
+        if time.time() - start > TIMEOUT:
+            process.kill()
+            process.communicate()
+            print("Timeout.")
+            return res
         try:
             process.communicate(input=test_input, timeout=TIMEOUT)
         except subprocess.TimeoutExpired:
