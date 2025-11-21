@@ -11,7 +11,7 @@ from fuzzes.flips import (
     single_byte_flip_ff,
     single_byte_remove
 )
-from fuzzes.inserts import delimiter_insert_at_index
+from fuzzes.inserts import delimiter_insert_at_index, csv_overflow_1, csv_overflow_2
 from fuzzes.basics import input_nothing, duplicate_input, long_lines_append_end
 from fuzzes.files import (
     BINARIES_DIR_PATH,
@@ -24,6 +24,8 @@ fuzz_tests = [
     input_nothing,
     duplicate_input,
     long_lines_append_end,
+    csv_overflow_1,
+    csv_overflow_2,
     single_byte_flip_char,
     single_byte_flip_null,
     single_byte_flip_ff,
@@ -55,8 +57,11 @@ def fuzz_binary(binary_name, binary_count, time_limit):
 
     start = time.time()
     hang_count = 0
+    smash_count = 0
     hang_input = b""
+    smash_input = b""
     hang = False
+    smash = False
     written = False
     crash_count = 0
     returncode_count = {}
@@ -66,10 +71,18 @@ def fuzz_binary(binary_name, binary_count, time_limit):
             try:
                 returncode = int(res.get("returncode"))
             except ValueError:
-                print(f"Program hang: {res.get('cause')}")
-                hang_count += 1
-                hang_input = res.get("input")
-                hang = True
+                if res.get('cause') == "HANG":
+                    print(f"Program hang: {res.get('cause')}")
+                    hang_count += 1
+                    hang_input = res.get("input")
+                    hang = True
+                else:
+                    print(f"Stack smashing detected: {res.get('cause')}")
+                    returncode_count[-6] = returncode_count.get(-6, 0) + 1
+                    smash_count += 1
+                    crash_count += 1
+                    smash_input = res.get("input")
+                    smash = True
             else:
                 returncode_count[returncode] = returncode_count.get(returncode, 0) + 1
                 sig = "normally" if returncode >= 0 else f"with signal {returncode} ({signal.Signals(-returncode).name})"
@@ -84,6 +97,10 @@ def fuzz_binary(binary_name, binary_count, time_limit):
         if time.time() - start >= time_limit / binary_count:
             print("Time limit reached.")
             break
+
+    if not written and smash:
+        write_output(binary_name, smash_input)
+        written = True
 
     if not written and hang:
         write_output(binary_name, hang_input)
@@ -104,6 +121,7 @@ def fuzz_binary(binary_name, binary_count, time_limit):
     print(f"│ Time Taken: {time_taken:<18.10f} │")
     print(f"│ Hangs: {hang_count:<23} │")
     print(f"│ Crashes: {crash_count:<21} │")
+    print(f"│ Stack Smashes: {smash_count:<15} │")
     print("╰────────────────────────────────╯")
     print(
         "______________________________________________________________________________"

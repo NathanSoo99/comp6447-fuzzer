@@ -13,13 +13,12 @@ def input_nothing(example_input, binary_name):
         stderr=subprocess.PIPE,
     )
     try:
-        process.communicate(input=b"", timeout=TIMEOUT)
+        stdout, stderr = process.communicate(input=b"", timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         process.kill()
         process.communicate()
         return [{"returncode": "HANG", "cause": "no input", "input": b""}]
-
-    return [{"returncode": process.returncode, "cause": "no input", "input": b""}]
+    return [{"returncode": process.returncode, "cause": "duplicated input (10000x)", "input": b""}]
 
 
 # input duplicated example input
@@ -37,13 +36,15 @@ def duplicate_input(example_input, binary_name):
         stderr=subprocess.PIPE,
     )
     try:
-        process.communicate(input=test_input, timeout=TIMEOUT)
+        stdout, stderr = process.communicate(input=test_input, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         process.kill()
         process.communicate()
         return [{"returncode": "HANG", "cause": "duplicated input (10000x)", "input": test_input}]
-
+    if b"stack smashing" in stderr:
+        return [{"returncode": "STACKSMASH", "cause": "duplicated input (10000x)", "input": test_input}]
     return [{"returncode": process.returncode, "cause": "duplicated input (10000x)", "input": test_input}]
+
 
 def long_lines_append_end(example_input, binary_name):
 
@@ -71,10 +72,12 @@ def long_lines_append_end(example_input, binary_name):
         stderr=subprocess.PIPE,
     )
     try:
-        process.communicate(input=test_input, timeout=TIMEOUT)
+        stdout, stderr = process.communicate(input=test_input, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         process.kill()
         process.communicate()
         return [{"returncode": "HANG", "cause": "1000 lines of minimal 1000 characters", "input": test_input}]
 
+    if b"stack smashing" in stderr:
+        return [{"returncode": "STACKSMASH", "cause": "1000 lines of minimal 1000 characters", "input": test_input}]
     return [{"returncode": process.returncode, "cause": "1000 lines of minimal 1000 characters", "input": test_input}]

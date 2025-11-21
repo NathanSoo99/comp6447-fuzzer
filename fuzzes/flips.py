@@ -22,13 +22,16 @@ def byte_flip_loop(example_input, binary_name, character):
             print("Timeout.")
             return res
         try:
-            process.communicate(input=test_input, timeout=TIMEOUT)
+            stdout, stderr = process.communicate(input=test_input, timeout=TIMEOUT)
         except subprocess.TimeoutExpired:
             process.kill()
             process.communicate()
             res.append({"returncode": "HANG", "cause": f"byte flipped to [{repr(character)}] at position {i}", "input": test_input})
         else:
-            res.append({"returncode": process.returncode, "cause": f"byte flipped to [{repr(character)}] at position {i}", "input": test_input})
+            if b"stack smashing" in stderr:
+                res.append({"returncode": "STACKSMASH", "cause": f"byte flipped to [{repr(character)}] at position {i}", "input": test_input})
+            else:
+                res.append({"returncode": process.returncode, "cause": f"byte flipped to [{repr(character)}] at position {i}", "input": test_input})
             #if process.returncode not in IGNORE SIGNALS return res (if test is taking too long, uncomment)
     return res
 
@@ -74,13 +77,16 @@ def single_byte_remove(example_input, binary_name):
             print("Timeout.")
             return res
         try:
-            process.communicate(input=test_input, timeout=TIMEOUT)
+            stdout, stderr = process.communicate(input=test_input, timeout=TIMEOUT)
         except subprocess.TimeoutExpired:
             process.kill()
             process.communicate()
             res.append({"returncode": "HANG", "cause": f"byte removed at position {i}", "input": test_input})
         else:
-            res.append({"returncode": process.returncode, "cause": f"byte removed at position {i}", "input": test_input})
+            if b"stack smashing" in stderr:
+                res.append({"returncode": "STACKSMASH", "cause": f"byte removed at position {i}", "input": test_input})
+            else:
+                res.append({"returncode": process.returncode, "cause": f"byte removed at position {i}", "input": test_input})
             #if process.returncode not in IGNORE SIGNALS return res (if test is taking too long, uncomment)
     return res
 
