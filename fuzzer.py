@@ -85,7 +85,7 @@ def fuzz_binary(binary_name, binary_count, time_limit):
             print("Time limit reached.")
             break
 
-    if not written:
+    if not written and hang:
         write_output(binary_name, hang_input)
 
     time_taken = time.time() - start
@@ -133,7 +133,6 @@ if __name__ == "__main__":
     time_limit = binary_count * 60
     for binary in binaries:
         time_limit -= fuzz_binary(binary, binary_count, time_limit)
-        binaries.remove(binary)
         binary_count -= 1
     print(f"Time Remaining: {time_limit} seconds")
 
