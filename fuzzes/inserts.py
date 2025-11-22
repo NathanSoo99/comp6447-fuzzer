@@ -1,5 +1,5 @@
 import subprocess
-
+import time
 from fuzzes.files import write_output, overwrite_file, TIMEOUT, IGNORE_SIGNALS
 
 
@@ -83,6 +83,7 @@ def delimiter_insert_at_index(example_input, binary_name):
     print("Test - insert delimiter at random index")
 
     res = []
+    start = time.time()
     for d in delimiters:
         for i in range(0, len(example_input)):
             test_input = example_input[:i] + d + example_input[i:]
@@ -92,13 +93,21 @@ def delimiter_insert_at_index(example_input, binary_name):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            if time.time() - start > TIMEOUT:
+                process.kill()
+                process.communicate()
+                print("Timeout.")
+                return res
             try:
                 stdout, stderr = process.communicate(input=test_input, timeout=TIMEOUT)
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.communicate()
-                res.append({"returncode": "HANG", "cause": f"'{d.decode()}' inserted at index: {i}", "input": test_input})
+                res.append({"returncode": "HANG", "cause": f"'{repr(d)}' inserted at index: {i}", "input": test_input})
             else:
-                res.append({"returncode": process.returncode, "cause": f"'{d.decode()}' inserted at index: {i}", "input": test_input})
+                if b"stack smashing" in stderr:
+                    res.append({"returncode": "STACKSMASH", "cause": f"'{repr(d)}' inserted at index: {i}", "input": test_input})
+                else:
+                    res.append({"returncode": process.returncode, "cause": f"'{repr(d)}' inserted at index: {i}", "input": test_input})
 
     return res

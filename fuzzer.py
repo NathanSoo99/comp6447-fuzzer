@@ -12,7 +12,7 @@ from fuzzes.flips import (
     single_byte_remove
 )
 from fuzzes.inserts import delimiter_insert_at_index, csv_overflow_1, csv_overflow_2
-from fuzzes.basics import input_nothing, duplicate_input, long_lines_append_end
+from fuzzes.basics import input_nothing, duplicate_input, duplicate_non_first_input, long_lines_append_end
 from fuzzes.files import (
     BINARIES_DIR_PATH,
     EXAMPLE_INPUTS_DIR_PATH,
@@ -23,9 +23,11 @@ from fuzzes.files import (
 fuzz_tests = [
     input_nothing,
     duplicate_input,
+    duplicate_non_first_input,
     long_lines_append_end,
     csv_overflow_1,
     csv_overflow_2,
+    delimiter_insert_at_index,
     single_byte_flip_char,
     single_byte_flip_null,
     single_byte_flip_ff,
@@ -33,7 +35,6 @@ fuzz_tests = [
     single_byte_flip_csv,
     single_byte_flip_json,
     single_byte_flip_xml,
-    #delimiter_insert_at_index,
 ]
 
 IGNORE_SIGNALS = [0, 1, -6]
