@@ -17,6 +17,22 @@ Current mutation strategies are:
 For each binary, our fuzzer prints the name of the binary, all checks run against that binary, and significant results or crashes for each check.
 At the end of all checks, a summary is provided with statistics on the return codes received, the total number of crashes and hangs caused, and the total time elapsed.
 
+# What kinds of bugs your fuzzer can find
+- Can find unhandled syntax errors such as not properly aligned CSV files by mutating the comma which separates the fields to another arbitrary symbol which cannot be parsed as valid CSV syntax.
+- Buffer overflow errors - as a result of inputting large sizes of input to overflow an input buffer if it has not been sized correctly and the program can take in more bytes than it can store in a buffer.
+- Can overflow CSV fields by writing too much data in one field, causing an unhandled crash.
+- Ungracefully handled  syntax errors in the input fields.
+- Ungracefully handled expected field width errors.
+
+# Notes for future improvements
+- Detecting Code Coverage which will also allow us to do Coverage Based Mutations
+  - We had researched and worked extensively using ptrace library to try and track coverage, attempting to set breakpoints at jumps in the binary. However this proved cahllenging to get working, in addition to struggles with poor documentation.
+- Avoiding overheads
+  - The speed of our tests is too slow when the example input size is too large (e.g a 5mb jpg file)
+- In memory resetting (Not calling execve)
+- The logging output of our fuzzer could be improved. The current output provides a limited statistical overview that can assist a user in determining if a program is vulnerable, but not the type or severity of the vulnerability. By classifying our checks into different categories, such as for input overflows versus malformed valid inputs, reporting the amount of  positive results would give the user insight into the nature of the vulnerability.
+- Construction of input files - we could import libraries to construct proper files with the right headers to malform file contents more effectively
+
 ## Hang Detection
 Our fuzzer uses a timeout approach to detect hangs. However, a less naive approach would involve establishing communication with the binary by attaching a process to ping the process at regular intervals. The lack of a response would indicate a hang.
 
@@ -24,15 +40,3 @@ Our fuzzer uses a timeout approach to detect hangs. However, a less naive approa
 There is an allocated average of 60s per binary. Our fuzzer divides this time equally between all binaries, and if a binary takes less than average time to be fuzzed, allocates more time to the other binaries. Consider if the first binary fuzzed takes an extensive amount of time to test and exceeds the 60s limit, but the subsequent binaries all fall under 60s. In this case, our fuzzer allocates more time to binaries that don't require it. Essentially, the attempt to distribute and use time as much as possible can be thwarted by the order in which the binaries run.
 
 To solve this issue, binaries which exceed 60s could be re-added to the fuzzing queue, with their current progress recorded. Then, fuzzing could resume on these binaries until the available time was used up.
-
-# What kinds of bugs your fuzzer can find
-- Can find unhandled syntax errors such as not properly aligned CSV files by mutating the comma which separates the fields to another arbitrary symbol which cannot be parsed as valid CSV syntax.
-- Basic buffer overflows - as a result of inputting large sizes of input to overflow an input buffer if it has not been sized correctly and the program can take in more bytes than it can store in a buffer.
-- Can overflow CSV fields by writing too much data in one field, causing an unhandled crash.
-
-# Notes for future improvements
-- Detecting Code Coverage which will also allow us to do Coverage Based Mutations
-- Avoiding overheads
-- In memory resetting (Not calling execve)
-- More comprehensive and useful logging / statistics collection and display
-- Detecting infinite loop (code coverage) vs slow running program (timeout approach)
