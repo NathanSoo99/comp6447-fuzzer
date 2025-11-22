@@ -155,10 +155,3 @@ if __name__ == "__main__":
         binary_count -= 1
     print(f"Time Remaining: {time_limit} seconds")
 
-# i wonder if run_fuzzer handles running all the different files for us
-
-
-# get every binary in the /binaries dir
-# for each binary
-# run all inputs against it
-# ensure we check well for segfaults and etc. otherwise we lose
