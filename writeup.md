@@ -9,7 +9,7 @@ Upon running, this fuzzer loads a variety of fuzzing techniques from `./fuzzes` 
 - inserting delimiters (for various file types)
 - using long inputs to break programs. 
 
-There is an allocated average of 60s per binary. Our fuzzer divides this time equally between all binaries, and if a binary takes less than average time to be fuzzed, allocates more time to the other binaries. Consider if the first binary fuzzed takes an extensive amount of time to test and exceeds the 60s limit, but the subsequent binaries all fall under 60s. 
+There is an allocated average of 60s per binary. Our fuzzer divides this time equally between all binaries, and if a binary takes less than average time to be fuzzed, allocates more time to the other binaries. 
 
 # How to run the fuzzer
 ```
@@ -54,4 +54,4 @@ At the end of all checks, a summary is provided with statistics on the return co
 Our fuzzer uses a timeout approach to detect hangs. However, a less naive approach would involve establishing communication with the binary by attaching a process to ping the process at regular intervals. The lack of a response would indicate a hang.
 
 ## Time Limit
-In this case, our fuzzer allocates more time to binaries that don't require it. Essentially, the attempt to distribute and use time as much as possible can be thwarted by the order in which the binaries run. To solve this issue, binaries which exceed 60s could be re-added to the fuzzing queue, with their current progress recorded. Then, fuzzing could resume on these binaries until the available time was used up.
+Consider if the first binary fuzzed takes an extensive amount of time to test and exceeds the 60s limit, but the subsequent binaries all fall under 60s. In this case, our fuzzer allocates more time to binaries that don't require it. Essentially, the attempt to distribute and use time as much as possible can be thwarted by the order in which the binaries run. To solve this issue, binaries which exceed 60s could be re-added to the fuzzing queue, with their current progress recorded. Then, fuzzing could resume on these binaries until the available time was used up.
