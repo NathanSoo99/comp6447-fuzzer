@@ -19,6 +19,7 @@ from fuzzes.files import (
     FUZZER_OUTPUT_DIR_PATH,
     write_output
 )
+from fuzzes.reorder import rearrange_segments
 
 fuzz_tests = [
     input_nothing,
@@ -35,6 +36,7 @@ fuzz_tests = [
     single_byte_flip_csv,
     single_byte_flip_json,
     single_byte_flip_xml,
+    rearrange_segments,
 ]
 
 IGNORE_SIGNALS = [0, 1, -6]
@@ -154,4 +156,5 @@ if __name__ == "__main__":
         time_limit -= fuzz_binary(binary, binary_count, time_limit)
         binary_count -= 1
     print(f"Time Remaining: {time_limit} seconds")
+
 
