@@ -1,6 +1,6 @@
 # Functionality
 Our fuzzer runs the provided binaries as subprocesses, looping through the binaries directory and feeding input to the binaries (both the example input and our own mutated input).
-Our fuzzer detects a crash when it receives ambnormal return codes from a subprocess, considering -6 which is aborts and stack smashing detected - which indicates a vulnerability, 0 (exit success) and 1 (exits called by the program) to be normal and assuming other codes are due to the fuzzer causing abnormal behaviour of the binary. The last output which caused an error (or a hang if no error was found) is written to the fuzzer output directory.
+Our fuzzer detects a crash when it receives ambnormal return codes from a subprocess, considering codes 0 (exit success) and 1 (exits called by the program) to be normal and assuming other codes are due to the fuzzer causing abnormal behaviour of the binary. It also differentiates between -6 (SIGABRT) codes caused by stack smashing, indicating potential vulnerabilities, from standard abort calls made by the binary. The last output which caused an error (or a hang if no error was found) is written to the fuzzer output directory.
 
 All our code is written in fuzzer.py. We attempted to write an OOP controller for our fuzzer in harness.py but we were not successful in making it run in conjuction with requirements.txt, so we did not decide to use it. However, its functionality is essentially in fuzzer.py.
 
