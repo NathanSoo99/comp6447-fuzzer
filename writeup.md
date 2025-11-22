@@ -1,6 +1,23 @@
 # Functionality
 Our fuzzer runs the provided binaries as subprocesses, looping through the binaries directory and feeding input to the binaries (both the example input and our own mutated input).
-Our fuzzer detects a crash when it receives ambnormal return codes from a subprocess, considering -6 (aborts), 0 (exit success) and 1 (exits called by the program) to be normal and assuming other codes are due to the fuzzer causing abnormal behaviour of the binary. The last output which caused an error (or a hang if no error was found) is written to the fuzzer output directory.
+Our fuzzer detects a crash when it receives ambnormal return codes from a subprocess, considering -6 which is aborts and stack smashing detected - which indicates a vulnerability, 0 (exit success) and 1 (exits called by the program) to be normal and assuming other codes are due to the fuzzer causing abnormal behaviour of the binary. The last output which caused an error (or a hang if no error was found) is written to the fuzzer output directory.
+
+All our code is written in fuzzer.py. We attempted to write an OOP controller for our fuzzer in harness.py but we were not successful in making it run in conjuction with requirements.txt, so we did not decide to use it. However, its functionality is essentially in fuzzer.py.
+
+Upon running, this fuzzer loads a variety of fuzzing techniques from `./fuzzes` including:
+- byte flips for each file type, 
+- inserting delimiters (for various file types)
+- using long inputs to break programs. 
+
+There is an allocated average of 60s per binary. Our fuzzer divides this time equally between all binaries, and if a binary takes less than average time to be fuzzed, allocates more time to the other binaries. Consider if the first binary fuzzed takes an extensive amount of time to test and exceeds the 60s limit, but the subsequent binaries all fall under 60s. 
+
+# How to run the fuzzer
+```
+git clone https://github.com/NathanSoo99/comp6447-fuzzer.git
+cd comp6447-fuzzer
+docker build -t fuzzer-image .
+docker run -v ./binaries:/binaries:ro -v ./example_inputs:/example_inputs:ro -v ./fuzzer_output:/fuzzer_output fuzzer-image
+```
 
 ## Mutation Strategies
 Current mutation strategies are:
@@ -37,6 +54,4 @@ At the end of all checks, a summary is provided with statistics on the return co
 Our fuzzer uses a timeout approach to detect hangs. However, a less naive approach would involve establishing communication with the binary by attaching a process to ping the process at regular intervals. The lack of a response would indicate a hang.
 
 ## Time Limit
-There is an allocated average of 60s per binary. Our fuzzer divides this time equally between all binaries, and if a binary takes less than average time to be fuzzed, allocates more time to the other binaries. Consider if the first binary fuzzed takes an extensive amount of time to test and exceeds the 60s limit, but the subsequent binaries all fall under 60s. In this case, our fuzzer allocates more time to binaries that don't require it. Essentially, the attempt to distribute and use time as much as possible can be thwarted by the order in which the binaries run.
-
-To solve this issue, binaries which exceed 60s could be re-added to the fuzzing queue, with their current progress recorded. Then, fuzzing could resume on these binaries until the available time was used up.
+In this case, our fuzzer allocates more time to binaries that don't require it. Essentially, the attempt to distribute and use time as much as possible can be thwarted by the order in which the binaries run. To solve this issue, binaries which exceed 60s could be re-added to the fuzzing queue, with their current progress recorded. Then, fuzzing could resume on these binaries until the available time was used up.
